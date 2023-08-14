@@ -1,0 +1,21 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: update apt repos
+      run: sudo apt-get update
+    - name: install make
+      run: sudo apt-get -y install make
+    - name: install go 1.20
+      run: rm -rf /usr/local/go && tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz
+    - name: Prepare tools
+      run: make install-tools 
+    - name: Run tests
+      run: make test
