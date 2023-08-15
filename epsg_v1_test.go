@@ -2,18 +2,18 @@ package wktcrs
 
 import (
 	"bytes"
+	"math"
+
 	// nolint:gosec
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strings"
 	"testing"
 
 	antlr "github.com/antlr4-go/antlr/v4"
-	"github.com/fikin/wkt-crs-go/wktcrsv1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -63,7 +63,7 @@ func TestParsingEpsgFile(t *testing.T) {
 		assertFn     func(t *testing.T, is antlr.CharStream) string
 	}{
 		{"to properties", "target/epsg.properties", "b0c6bcd0a69fd73402e84574dcff7e9c", assertToProps},
-		{"to map", "target/epsg.json", "8dc2a7c5689b767c50b06c208c7c6c93", assertToJSON},
+		{"to map", "target/epsg.json", "c2da8c74895cc60c7cb1d9614f042e38", assertToJSON},
 		{"to pretty text", "target/epsg.txt", "3f97966a58a366230da5fbf79518d81c", assertToPrettyText},
 	}
 	for _, tc := range tcData {
@@ -81,28 +81,20 @@ func assertExpectedHash(t *testing.T, exp, actual string) {
 	h := md5.New()
 	_, err := io.WriteString(h, actual)
 	assert.NoError(t, err)
+	// assert.Equal(t, exp, fmt.Sprintf("%x", h.Sum(nil)), "%s", actual)
 	assert.Equal(t, exp, fmt.Sprintf("%x", h.Sum(nil)), "%s", actual[0:int(math.Min(100, float64(len(actual))))])
 }
 
-func parseTree(is antlr.CharStream) wktcrsv1.IPropsFileContext {
-	lexer := wktcrsv1.Newwktcrsv1Lexer(is)
-	stream := antlr.NewCommonTokenStream(lexer, 0)
-	parser := wktcrsv1.Newwktcrsv1Parser(stream)
-	parser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	parser.BuildParseTrees = true
-	return parser.PropsFile()
-}
-
 func assertToProps(t *testing.T, is antlr.CharStream) string {
-	tree := parseTree(is)
+	tree := ParsePropsFileAST(is)
 	out := &strings.Builder{}
-	assert.NoError(t, nodeToText(tree, out))
+	assert.NoError(t, NodeToText(tree, out))
 	return out.String()
 }
 
 func assertToJSON(t *testing.T, is antlr.CharStream) string {
-	tree := parseTree(is)
-	arr, err := propsFileNodeToArr(tree)
+	tree := ParsePropsFileAST(is)
+	arr, err := PropsFileNodeToArr(tree)
 	require.NoError(t, err)
 	out := &bytes.Buffer{}
 	ee := json.NewEncoder(out)
@@ -112,14 +104,14 @@ func assertToJSON(t *testing.T, is antlr.CharStream) string {
 }
 
 func assertToPrettyText(t *testing.T, is antlr.CharStream) string {
-	tree := parseTree(is)
+	tree := ParsePropsFileAST(is)
 	out := &strings.Builder{}
-	assert.NoError(t, nodeToPrettyText(tree, "", "  ", out))
+	assert.NoError(t, NodeToPrettyText(tree, "", "  ", out))
 	return out.String()
 }
 
 func assertEpsgPropsFile(t *testing.T) (is antlr.CharStream) {
-	is, err := antlr.NewFileStream("target/epsg.properties")
+	is, err := antlr.NewFileStream("target/geotools-epsg.properties")
 	require.NoError(t, err)
 	return is
 }

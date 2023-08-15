@@ -15,33 +15,35 @@ GO_TOOLS					:= ${GOLANGCI_LINT} ${GOTESTSUM} ${COMPLEXITY_LINT}
 
 GRAMMARS 					:= ${shell find . -name '*.g4' -type f}
 
-EPSG_PROPS_FILE				?= target/epsg.properties
+EPSG_PROPS_FILE				?= target/geotools-epsg.properties
 EPSG_PROPS_URL				?= https://raw.githubusercontent.com/geotools/geotools/main/modules/plugin/epsg-wkt/src/main/resources/org/geotools/referencing/epsg/wkt/epsg.properties
+
+ANTLR_DOCKERFILE			?= https://raw.githubusercontent.com/antlr/antlr4/master/docker/Dockerfile
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nExample:\n  \033[36mmake test\033[0m\n  Run tests.\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 .PHONY: install-tools
-install-tools: ${GO_TOOLS} build-imgs  ## Install all tools required by Makefile
+install-tools: ${GO_TOOLS}  ## Install all tools required by Makefile
 ${GO_TOOLS}:
 	$(eval TOOL=$(@:%${BIN_EXE}=%))
 	go install $(TOOL:${TOOLS_DIR}%=%)
 	@mkdir -p $(dir ${TOOL})
 	@cp ${GOBIN}/$(firstword $(subst @, ,$(notdir ${TOOL}))) ${TOOL}
 
-.PHONY: build-imgs
-build-imgs:
-	docker pull antlr/antlr4
+.PHONY: build-antlr
+build-antlr:
+	docker build --tag antlr4 $(ANTLR_DOCKERFILE)
 
 $(EPSG_PROPS_FILE):
-	@mkdir target
+	@mkdir -p target
 	curl -so $(EPSG_PROPS_FILE) $(EPSG_PROPS_URL)
 
 .PHONY: generate
-generate: ${GRAMMARS:%=generate/%}  ## Generate grammars
+generate: ${GRAMMARS:%=generate/%}  ## Generate grammars (make sure to build-antlr first)
 generate/%:
 	@echo Generate grammar for ${*}
-	docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) -v $(abspath $(dir ${*})):/work antlr/antlr4 -Dlanguage=Go -no-listener -no-visitor -package $(basename $(@F)) $(@F)
+	docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) -v $(abspath $(dir ${*})):/work antlr4 -Dlanguage=Go -no-listener -no-visitor -package $(basename $(@F)) $(@F)
 
 build: ## Build command line apps
 	go build -o target/parser cmd/parser/main.go
@@ -61,3 +63,8 @@ vendor: ## Tidy go.mod
 
 clean: ## Remove build artifacts
 	rm -rf target
+
+PHONY: .check-no-changed-files
+.check-no-changed-files:
+	@$(shell test $$(git status | wc -l) -eq 0)
+	@exit $(.SHELLSTATUS)

@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/antlr4-go/antlr/v4"
+	"github.com/fikin/wkt-crs-go/wktcrsv1"
 )
 
 type (
@@ -38,4 +39,15 @@ func visitChildren(node antlr.Tree, visitor visitorFn) error {
 		}
 	}
 	return nil
+}
+
+// ParsePropsFileAST is parsing input of epsg.properties file and
+// returns AST root node.
+func ParsePropsFileAST(is antlr.CharStream) wktcrsv1.IPropsFileContext {
+	lexer := wktcrsv1.Newwktcrsv1Lexer(is)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
+	parser := wktcrsv1.Newwktcrsv1Parser(stream)
+	parser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+	parser.BuildParseTrees = true
+	return parser.PropsFile()
 }

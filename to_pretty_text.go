@@ -7,7 +7,8 @@ import (
 	"github.com/fikin/wkt-crs-go/wktcrsv1"
 )
 
-func nodeToPrettyText(node antlr.Tree, prefix, indent string, out io.StringWriter) error {
+// NodeToPrettyText is returning node as pretty printed.
+func NodeToPrettyText(node antlr.Tree, prefix, indent string, out io.StringWriter) error {
 	return nodeToPrettyText2(node, out, writeOnNewLine(), prefix, indent)
 }
 

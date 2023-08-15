@@ -2,18 +2,22 @@ package wktcrs
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/fikin/wkt-crs-go/wktcrsv1"
 )
 
-func propsFileNodeToArr(node antlr.Tree) (ret interface{}, err error) {
+// PropsFileNodeToArr is returning array of map[string]interface{} for
+// each EPSG definition in the input AST.
+// Input must be content of a properties file.
+func PropsFileNodeToArr(node antlr.Tree) (ret []MapObj, err error) {
 	switch n := node.(type) {
 	case wktcrsv1.IPropsFileContext:
-		ret := []interface{}{}
+		ret := []MapObj{}
 		for _, v := range n.AllPropRow() {
-			o, err := nodeToMap(v)
+			o, err := NodeToMap(v)
 			if err != nil {
 				return nil, err
 			}
@@ -27,151 +31,154 @@ func propsFileNodeToArr(node antlr.Tree) (ret interface{}, err error) {
 	}
 }
 
+// NodeToMap is converting given node into json-like hashmap object
 // nolint:gocognit
-func nodeToMap(node antlr.Tree) (interface{}, error) {
+func NodeToMap(node antlr.Tree) (MapObj, error) {
 	if node == nil {
 		return nil, nil
 	}
 	switch n := node.(type) {
 	case wktcrsv1.IPropRowContext:
-		return nodeToMap(n.EpsgDefLine())
+		return NodeToMap(n.EpsgDefLine())
 	case wktcrsv1.IEpsgDefLineContext:
-		return nodeToMap(n.Wkt())
+		return NodeToMap(n.Wkt())
 	case wktcrsv1.IWktContext:
 		return createMap(mapKeysBuilder{
-			"compdcs": func() (interface{}, error) { return nodeToMap(n.Compdcs()) },
-			"projcs":  func() (interface{}, error) { return nodeToMap(n.Projcs()) },
-			"geogcs":  func() (interface{}, error) { return nodeToMap(n.Geogcs()) },
-			"vertcs":  func() (interface{}, error) { return nodeToMap(n.Vertcs()) },
-			"geoccs":  func() (interface{}, error) { return nodeToMap(n.Geoccs()) },
-			"localcs": func() (interface{}, error) { return nodeToMap(n.Localcs()) },
+			"compdcs": func() (any, error) { return NodeToMap(n.Compdcs()) },
+			"projcs":  func() (any, error) { return NodeToMap(n.Projcs()) },
+			"geogcs":  func() (any, error) { return NodeToMap(n.Geogcs()) },
+			"vertcs":  func() (any, error) { return NodeToMap(n.Vertcs()) },
+			"geoccs":  func() (any, error) { return NodeToMap(n.Geoccs()) },
+			"localcs": func() (any, error) { return NodeToMap(n.Localcs()) },
 		})
 	case wktcrsv1.ICompdcsContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"projcs":    func() (interface{}, error) { return nodeToMap(n.Projcs()) },
-			"geogcs":    func() (interface{}, error) { return nodeToMap(n.Geogcs()) },
-			"vertcs":    func() (interface{}, error) { return nodeToMap(n.Vertcs()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"projcs":    func() (any, error) { return NodeToMap(n.Projcs()) },
+			"geogcs":    func() (any, error) { return NodeToMap(n.Geogcs()) },
+			"vertcs":    func() (any, error) { return NodeToMap(n.Vertcs()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IProjcsContext:
 		return createMap(mapKeysBuilder{
-			"name":       func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"geogcs":     func() (interface{}, error) { return nodeToMap(n.Geogcs()) },
-			"projection": func() (interface{}, error) { return nodeToMap(n.Projection()) },
-			"parameter":  func() (interface{}, error) { return nodeToArr(paramCastToTree(n.AllParameter())) },
-			"unit":       func() (interface{}, error) { return nodeToMap(n.Unit()) },
-			"axis":       func() (interface{}, error) { return nodeToArr(axisCastToTree(n.AllAxis())) },
-			"authority":  func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":       func() (any, error) { return nodeToStr(n.Name()) },
+			"geogcs":     func() (any, error) { return NodeToMap(n.Geogcs()) },
+			"projection": func() (any, error) { return NodeToMap(n.Projection()) },
+			"parameter":  func() (any, error) { return NodeToArr(paramCastToTree(n.AllParameter())) },
+			"unit":       func() (any, error) { return NodeToMap(n.Unit()) },
+			"axis":       func() (any, error) { return NodeToArr(axisCastToTree(n.AllAxis())) },
+			"authority":  func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IGeoccsContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"datum":     func() (interface{}, error) { return nodeToMap(n.Datum()) },
-			"primem":    func() (interface{}, error) { return nodeToMap(n.Primem()) },
-			"unit":      func() (interface{}, error) { return nodeToMap(n.Unit()) },
-			"axis":      func() (interface{}, error) { return nodeToArr(axisCastToTree(n.AllAxis())) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"datum":     func() (any, error) { return NodeToMap(n.Datum()) },
+			"primem":    func() (any, error) { return NodeToMap(n.Primem()) },
+			"unit":      func() (any, error) { return NodeToMap(n.Unit()) },
+			"axis":      func() (any, error) { return NodeToArr(axisCastToTree(n.AllAxis())) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IGeogcsContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"datum":     func() (interface{}, error) { return nodeToMap(n.Datum()) },
-			"primem":    func() (interface{}, error) { return nodeToMap(n.Primem()) },
-			"unit":      func() (interface{}, error) { return nodeToMap(n.Unit()) },
-			"axis":      func() (interface{}, error) { return nodeToArr(axisCastToTree(n.AllAxis())) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"datum":     func() (any, error) { return NodeToMap(n.Datum()) },
+			"primem":    func() (any, error) { return NodeToMap(n.Primem()) },
+			"unit":      func() (any, error) { return NodeToMap(n.Unit()) },
+			"axis":      func() (any, error) { return NodeToArr(axisCastToTree(n.AllAxis())) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IVertcsContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"datum":     func() (interface{}, error) { return nodeToMap(n.Vertdatum()) },
-			"unit":      func() (interface{}, error) { return nodeToMap(n.Unit()) },
-			"axis":      func() (interface{}, error) { return nodeToMap(n.Axis()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"datum":     func() (any, error) { return NodeToMap(n.Vertdatum()) },
+			"unit":      func() (any, error) { return NodeToMap(n.Unit()) },
+			"axis":      func() (any, error) { return NodeToMap(n.Axis()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.ILocalcsContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"datum":     func() (interface{}, error) { return nodeToMap(n.Localdatum()) },
-			"unit":      func() (interface{}, error) { return nodeToMap(n.Unit()) },
-			"axis":      func() (interface{}, error) { return nodeToArr(axisCastToTree(n.AllAxis())) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"datum":     func() (any, error) { return NodeToMap(n.Localdatum()) },
+			"unit":      func() (any, error) { return NodeToMap(n.Unit()) },
+			"axis":      func() (any, error) { return NodeToArr(axisCastToTree(n.AllAxis())) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IDatumContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"spheroid":  func() (interface{}, error) { return nodeToMap(n.Spheroid()) },
-			"towgs84":   func() (interface{}, error) { return nodeToMap(n.Towgs84()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":     func() (any, error) { return nodeToStr(n.Name()) },
+			"spheroid": func() (any, error) { return NodeToMap(n.Spheroid()) },
+			"towgs84": func() (any, error) {
+				return NodeToMap(n.Towgs84())
+			},
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IVertdatumContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"type":      func() (interface{}, error) { return nodeToNumber(n.Type_()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"type":      func() (any, error) { return nodeToNumber(n.Type_()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.ILocaldatumContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"type":      func() (interface{}, error) { return nodeToNumber(n.Type_()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"type":      func() (any, error) { return nodeToNumber(n.Type_()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.ISpheroidContext:
 		return createMap(mapKeysBuilder{
-			"name":              func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"semiMajorAxis":     func() (interface{}, error) { return nodeToNumber(n.SemiMajorAxis()) },
-			"inverseFlattening": func() (interface{}, error) { return nodeToNumber(n.InverseFlattening()) },
-			"authority":         func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":              func() (any, error) { return nodeToStr(n.Name()) },
+			"semiMajorAxis":     func() (any, error) { return nodeToNumber(n.SemiMajorAxis()) },
+			"inverseFlattening": func() (any, error) { return nodeToNumber(n.InverseFlattening()) },
+			"authority":         func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.ITowgs84Context:
 		return createMap(mapKeysBuilder{
-			"Dx": func() (interface{}, error) { return nodeToNumber(n.DXBF()) },
-			"Dy": func() (interface{}, error) { return nodeToNumber(n.DYBF()) },
-			"Dz": func() (interface{}, error) { return nodeToNumber(n.DZBF()) },
-			"Rx": func() (interface{}, error) { return nodeToNumber(n.RXBF()) },
-			"Ry": func() (interface{}, error) { return nodeToNumber(n.RYBF()) },
-			"Rz": func() (interface{}, error) { return nodeToNumber(n.RZBF()) },
-			"M":  func() (interface{}, error) { return nodeToNumber(n.MBF()) },
+			"Dx": func() (any, error) { return nodeToNumber(n.DXBF()) },
+			"Dy": func() (any, error) { return nodeToNumber(n.DYBF()) },
+			"Dz": func() (any, error) { return nodeToNumber(n.DZBF()) },
+			"Rx": func() (any, error) { return nodeToNumber(n.RXBF()) },
+			"Ry": func() (any, error) { return nodeToNumber(n.RYBF()) },
+			"Rz": func() (any, error) { return nodeToNumber(n.RZBF()) },
+			"M":  func() (any, error) { return nodeToNumber(n.MBF()) },
 		})
 	case wktcrsv1.IAuthorityContext:
 		return createMap(mapKeysBuilder{
-			"name": func() (interface{}, error) { return nodeToStr(n.AuthorityName()) },
-			"code": func() (interface{}, error) { return nodeToStr(n.Code()) },
+			"name": func() (any, error) { return nodeToStr(n.AuthorityName()) },
+			"code": func() (any, error) { return nodeToStr(n.Code()) },
 		})
 	case wktcrsv1.IPrimemContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"longitude": func() (interface{}, error) { return nodeToNumber(n.Longitude()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"longitude": func() (any, error) { return nodeToNumber(n.Longitude()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IUnitContext:
 		return createMap(mapKeysBuilder{
-			"name":        func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"angularUnit": func() (interface{}, error) { return nodeToNumber(n.AngularUnit()) },
+			"name":        func() (any, error) { return nodeToStr(n.Name()) },
+			"angularUnit": func() (any, error) { return nodeToNumber(n.AngularUnit()) },
 		})
 	case wktcrsv1.IAxisContext:
 		return createMap(mapKeysBuilder{
-			"name": func() (interface{}, error) { return nodeToStr(n.Name()) },
+			"name": func() (any, error) { return nodeToStr(n.Name()) },
 			// nolint:unparam
-			"orientation": func() (interface{}, error) { return n.AxisOrient().GetText(), nil },
+			"orientation": func() (any, error) { return n.AxisOrient().GetText(), nil },
 		})
 	case wktcrsv1.IProjectionContext:
 		return createMap(mapKeysBuilder{
-			"name":      func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"authority": func() (interface{}, error) { return nodeToMap(n.Authority()) },
+			"name":      func() (any, error) { return nodeToStr(n.Name()) },
+			"authority": func() (any, error) { return NodeToMap(n.Authority()) },
 		})
 	case wktcrsv1.IParameterContext:
 		return createMap(mapKeysBuilder{
-			"name":  func() (interface{}, error) { return nodeToStr(n.Name()) },
-			"value": func() (interface{}, error) { return nodeToNumber(n.Value()) },
+			"name":  func() (any, error) { return nodeToStr(n.Name()) },
+			"value": func() (any, error) { return nodeToNumber(n.Value()) },
 		})
 	default:
 		return nil, fmt.Errorf("expected object node type here but found : %s : %v", n, node)
 	}
 }
 
-func nodeToStr(node antlr.Tree) (interface{}, error) {
+func nodeToStr(node antlr.Tree) (*string, error) {
 	if node == nil {
 		return nil, nil
 	}
@@ -186,10 +193,10 @@ func nodeToStr(node antlr.Tree) (interface{}, error) {
 		return nil, fmt.Errorf("expected string node type here but found : %s : %v", n, node)
 	}
 	str = str[1 : len(str)-1]
-	return str, nil
+	return &str, nil
 }
 
-func nodeToNumber(node antlr.Tree) (interface{}, error) {
+func nodeToNumber(node antlr.Tree) (*float64, error) {
 	if node == nil {
 		return nil, nil
 	}
@@ -217,27 +224,28 @@ func nodeToNumber(node antlr.Tree) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return f, nil
+	return &f, nil
 }
 
-type mapObj map[string]interface{}
+// MapObj is shortcut to type a json-like object as hashmap
+type MapObj map[string]interface{}
 
-func nodeToArr(nodes []antlr.Tree) (interface{}, error) {
-	arr := []mapObj{}
+// NodeToArr is converting given nodes into array of objects.
+func NodeToArr(nodes []antlr.Tree) ([]MapObj, error) {
+	arr := []MapObj{}
 	for _, n := range nodes {
-		o, err := nodeToMap(n)
+		o, err := NodeToMap(n)
 		if err != nil {
 			return nil, err
 		}
 		if o != nil {
-			oo, ok := o.(mapObj)
-			if !ok {
-				return nil, fmt.Errorf("failed typcasting to jsonObj : %v", o)
-			}
-			arr = append(arr, oo)
+			arr = append(arr, o)
 		}
 	}
-	return arr, nil
+	if len(arr) > 0 {
+		return arr, nil
+	}
+	return nil, nil
 }
 
 func axisCastToTree(nodes []wktcrsv1.IAxisContext) []antlr.Tree {
@@ -256,18 +264,34 @@ func paramCastToTree(nodes []wktcrsv1.IParameterContext) []antlr.Tree {
 	return arr
 }
 
-type mapKeysBuilder map[string]func() (interface{}, error)
+type mapKeysBuilder map[string]func() (any, error)
 
-func createMap(props mapKeysBuilder) (mapObj, error) {
-	ret := mapObj{}
+func createMap(props mapKeysBuilder) (MapObj, error) {
+	notEmpty := false
+	ret := MapObj{}
 	for k, v := range props {
 		p, err := v()
 		if err != nil {
 			return nil, fmt.Errorf("%s : %#w", k, err)
 		}
-		if p != nil {
+		if !isNilFixed(p) {
 			ret[k] = p
+			notEmpty = true
 		}
 	}
-	return ret, nil
+	if notEmpty {
+		return ret, nil
+	}
+	return nil, nil
+}
+
+func isNilFixed(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		return reflect.ValueOf(i).IsNil()
+	}
+	return false
 }

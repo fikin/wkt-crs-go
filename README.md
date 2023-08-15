@@ -24,7 +24,33 @@ Instead there are few other visitors, which can be used as basis for whatever el
 
 ## Usage
 
-The library offers a compiled
+In the core of it is ANTLR generated lexer and parser code.
+
+Obtain character stream for the data you want to parse:
+
+```go
+is, err := antlr.NewFileStream("target/epsg.properties")
+require.NoError(t, err)
+```
+
+then parse it:
+
+```go
+lexer := wktcrsv1.Newwktcrsv1Lexer(is)
+stream := antlr.NewCommonTokenStream(lexer, 0)
+parser := wktcrsv1.Newwktcrsv1Parser(stream)
+parser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+parser.BuildParseTrees = true
+return parser
+```
+
+then use the parser rule which represents most closely your input:
+
+- for epsg.properties file, use `parser.PropsFile()`
+- for plain WKT definition, use `parser.Wkt()`
+
+Returned node is root of the AST and one can use visitor patter to process it.
+See examples in `to_map.go` and similar.
 
 ## V1 support
 
