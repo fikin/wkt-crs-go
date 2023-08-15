@@ -1,0 +1,18 @@
+// Code generated from {{.inFileName}} by wktcrs parser. DO NOT EDIT.
+package {{.packageName}}
+
+{{ range .propsNode.AllPropRow }}
+{{- range .GetChildren -}}
+{{- if eq "*wktcrsv1.CommentLineContext" (printf "%T" .) -}}
+// {{.GetText}}
+{{ else }}
+// Epsg{{.EpsgCode.GetText}} is
+/*
+{{prettytext .Wkt}} 
+*/
+func Epsg{{.EpsgCode.GetText}}() ProjectedReferenceSystem {
+    return nil
+}
+{{ end -}}
+{{- end -}}
+{{- end -}}

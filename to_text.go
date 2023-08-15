@@ -7,7 +7,8 @@ import (
 	"github.com/fikin/wkt-crs-go/wktcrsv1"
 )
 
-func nodeToText(node antlr.Tree, out io.StringWriter) error {
+// NodeToText is printing given node as WKT text, no whitespace used.
+func NodeToText(node antlr.Tree, out io.StringWriter) error {
 	return nodeToText2(node, out, writeOnNewLine())
 }
 
