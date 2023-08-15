@@ -66,7 +66,6 @@ clean: ## Remove build artifacts
 
 PHONY: .check-no-changed-files
 .check-no-changed-files:
-	@git diff --no-renames --name-status HEAD^
-	@git log
+	@git diff --no-renames --name-status $$(git log --format="%H" -n 1)
 	@$(shell test $$(git diff --no-renames --name-status HEAD^ | wc -l) -eq 0)
 	@exit $(.SHELLSTATUS)
