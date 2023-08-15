@@ -10,7 +10,7 @@ export GOBIN				?= $(shell go env GOPATH)/bin
 TOOLS_DIR					:= .tools/
 GOTESTSUM					:= ${TOOLS_DIR}gotest.tools/gotestsum@v1.10.1${BIN_EXE}
 GOLANGCI_LINT				:= ${TOOLS_DIR}github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.1${BIN_EXE}
-COMPLEXITY_LINT 			:= ${TOOLS_DIR}github.com/fikin/go-complexity-analysis/cmd/complexity@v1.1.10${BIN_EXE}
+COMPLEXITY_LINT 			:= ${TOOLS_DIR}github.com/fikin/go-complexity-analysis/cmd/complexity@master${BIN_EXE}
 GO_TOOLS					:= ${GOLANGCI_LINT} ${GOTESTSUM} ${COMPLEXITY_LINT}
 
 GRAMMARS 					:= ${shell find . -name '*.g4' -type f}
