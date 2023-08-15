@@ -66,6 +66,8 @@ clean: ## Remove build artifacts
 
 PHONY: .check-no-changed-files
 .check-no-changed-files:
+	@echo $(shell echo "commit: "$$(git log --format="%H" -n 1))
+	@echo "checking for changed files during grammar generation"
 	@git diff --no-renames --name-status $$(git log --format="%H" -n 1)
-	@$(shell test $$(git diff --no-renames --name-status HEAD^ | wc -l) -eq 0)
+	@$(shell test $$(git diff --no-renames --name-status $$(git log --format="%H" -n 1) | wc -l) -eq 0)
 	@exit $(.SHELLSTATUS)
