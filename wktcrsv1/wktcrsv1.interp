@@ -113,16 +113,16 @@ number
 type
 semiMajorAxis
 inverseFlattening
-dXBF
-dYBF
-dZBF
-rXBF
-rYBF
-rZBF
-mBF
+dx
+dy
+dz
+ex
+ey
+ez
+ppm
 code
 longitude
-angularUnit
+conversionFactor
 value
 
 
