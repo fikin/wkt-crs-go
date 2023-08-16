@@ -51,9 +51,9 @@ func wktcrsv1ParserInit() {
     "projcs", "geoccs", "geogcs", "vertcs", "localcs", "datum", "vertdatum", 
     "localdatum", "spheroid", "towgs84", "authority", "primem", "unit", 
     "axis", "projection", "parameter", "authorityName", "axisOrient", "epsgCode", 
-    "name", "number", "type", "semiMajorAxis", "inverseFlattening", "dXBF", 
-    "dYBF", "dZBF", "rXBF", "rYBF", "rZBF", "mBF", "code", "longitude", 
-    "angularUnit", "value",
+    "name", "number", "type", "semiMajorAxis", "inverseFlattening", "dx", 
+    "dy", "dz", "ex", "ey", "ez", "ppm", "code", "longitude", "conversionFactor", 
+    "value",
   }
   staticData.PredictionContextCache = antlr.NewPredictionContextCache()
   staticData.serializedATN = []int32{
@@ -331,16 +331,16 @@ const (
 	wktcrsv1ParserRULE_type = 27
 	wktcrsv1ParserRULE_semiMajorAxis = 28
 	wktcrsv1ParserRULE_inverseFlattening = 29
-	wktcrsv1ParserRULE_dXBF = 30
-	wktcrsv1ParserRULE_dYBF = 31
-	wktcrsv1ParserRULE_dZBF = 32
-	wktcrsv1ParserRULE_rXBF = 33
-	wktcrsv1ParserRULE_rYBF = 34
-	wktcrsv1ParserRULE_rZBF = 35
-	wktcrsv1ParserRULE_mBF = 36
+	wktcrsv1ParserRULE_dx = 30
+	wktcrsv1ParserRULE_dy = 31
+	wktcrsv1ParserRULE_dz = 32
+	wktcrsv1ParserRULE_ex = 33
+	wktcrsv1ParserRULE_ey = 34
+	wktcrsv1ParserRULE_ez = 35
+	wktcrsv1ParserRULE_ppm = 36
 	wktcrsv1ParserRULE_code = 37
 	wktcrsv1ParserRULE_longitude = 38
-	wktcrsv1ParserRULE_angularUnit = 39
+	wktcrsv1ParserRULE_conversionFactor = 39
 	wktcrsv1ParserRULE_value = 40
 )
 
@@ -3933,16 +3933,16 @@ type ITowgs84Context interface {
 
 	// Getter signatures
 	LPAR() antlr.TerminalNode
-	DXBF() IDXBFContext
+	Dx() IDxContext
 	AllCOMMA() []antlr.TerminalNode
 	COMMA(i int) antlr.TerminalNode
-	DYBF() IDYBFContext
-	DZBF() IDZBFContext
+	Dy() IDyContext
+	Dz() IDzContext
 	RPAR() antlr.TerminalNode
-	RXBF() IRXBFContext
-	RYBF() IRYBFContext
-	RZBF() IRZBFContext
-	MBF() IMBFContext
+	Ex() IExContext
+	Ey() IEyContext
+	Ez() IEzContext
+	Ppm() IPpmContext
 
 	// IsTowgs84Context differentiates from other interfaces.
 	IsTowgs84Context()
@@ -3984,10 +3984,10 @@ func (s *Towgs84Context) LPAR() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserLPAR, 0)
 }
 
-func (s *Towgs84Context) DXBF() IDXBFContext {
+func (s *Towgs84Context) Dx() IDxContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDXBFContext); ok {
+		if _, ok := ctx.(IDxContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -3997,7 +3997,7 @@ func (s *Towgs84Context) DXBF() IDXBFContext {
 		return nil
 	}
 
-	return t.(IDXBFContext)
+	return t.(IDxContext)
 }
 
 func (s *Towgs84Context) AllCOMMA() []antlr.TerminalNode {
@@ -4008,10 +4008,10 @@ func (s *Towgs84Context) COMMA(i int) antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserCOMMA, i)
 }
 
-func (s *Towgs84Context) DYBF() IDYBFContext {
+func (s *Towgs84Context) Dy() IDyContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDYBFContext); ok {
+		if _, ok := ctx.(IDyContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4021,13 +4021,13 @@ func (s *Towgs84Context) DYBF() IDYBFContext {
 		return nil
 	}
 
-	return t.(IDYBFContext)
+	return t.(IDyContext)
 }
 
-func (s *Towgs84Context) DZBF() IDZBFContext {
+func (s *Towgs84Context) Dz() IDzContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDZBFContext); ok {
+		if _, ok := ctx.(IDzContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4037,17 +4037,17 @@ func (s *Towgs84Context) DZBF() IDZBFContext {
 		return nil
 	}
 
-	return t.(IDZBFContext)
+	return t.(IDzContext)
 }
 
 func (s *Towgs84Context) RPAR() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserRPAR, 0)
 }
 
-func (s *Towgs84Context) RXBF() IRXBFContext {
+func (s *Towgs84Context) Ex() IExContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IRXBFContext); ok {
+		if _, ok := ctx.(IExContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4057,13 +4057,13 @@ func (s *Towgs84Context) RXBF() IRXBFContext {
 		return nil
 	}
 
-	return t.(IRXBFContext)
+	return t.(IExContext)
 }
 
-func (s *Towgs84Context) RYBF() IRYBFContext {
+func (s *Towgs84Context) Ey() IEyContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IRYBFContext); ok {
+		if _, ok := ctx.(IEyContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4073,13 +4073,13 @@ func (s *Towgs84Context) RYBF() IRYBFContext {
 		return nil
 	}
 
-	return t.(IRYBFContext)
+	return t.(IEyContext)
 }
 
-func (s *Towgs84Context) RZBF() IRZBFContext {
+func (s *Towgs84Context) Ez() IEzContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IRZBFContext); ok {
+		if _, ok := ctx.(IEzContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4089,13 +4089,13 @@ func (s *Towgs84Context) RZBF() IRZBFContext {
 		return nil
 	}
 
-	return t.(IRZBFContext)
+	return t.(IEzContext)
 }
 
-func (s *Towgs84Context) MBF() IMBFContext {
+func (s *Towgs84Context) Ppm() IPpmContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IMBFContext); ok {
+		if _, ok := ctx.(IPpmContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4105,7 +4105,7 @@ func (s *Towgs84Context) MBF() IMBFContext {
 		return nil
 	}
 
-	return t.(IMBFContext)
+	return t.(IPpmContext)
 }
 
 func (s *Towgs84Context) GetRuleContext() antlr.RuleContext {
@@ -4143,7 +4143,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 	}
 	{
 		p.SetState(273)
-		p.DXBF()
+		p.Dx()
 	}
 	{
 		p.SetState(274)
@@ -4155,7 +4155,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 	}
 	{
 		p.SetState(275)
-		p.DYBF()
+		p.Dy()
 	}
 	{
 		p.SetState(276)
@@ -4167,7 +4167,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 	}
 	{
 		p.SetState(277)
-		p.DZBF()
+		p.Dz()
 	}
 	p.SetState(288)
 	p.GetErrorHandler().Sync(p)
@@ -4188,7 +4188,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 		}
 		{
 			p.SetState(279)
-			p.RXBF()
+			p.Ex()
 		}
 		{
 			p.SetState(280)
@@ -4200,7 +4200,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 		}
 		{
 			p.SetState(281)
-			p.RYBF()
+			p.Ey()
 		}
 		{
 			p.SetState(282)
@@ -4212,7 +4212,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 		}
 		{
 			p.SetState(283)
-			p.RZBF()
+			p.Ez()
 		}
 		p.SetState(286)
 		p.GetErrorHandler().Sync(p)
@@ -4233,7 +4233,7 @@ func (p *wktcrsv1Parser) Towgs84() (localctx ITowgs84Context) {
 			}
 			{
 				p.SetState(285)
-				p.MBF()
+				p.Ppm()
 			}
 
 		}
@@ -4655,7 +4655,7 @@ type IUnitContext interface {
 	Name() INameContext
 	AllCOMMA() []antlr.TerminalNode
 	COMMA(i int) antlr.TerminalNode
-	AngularUnit() IAngularUnitContext
+	ConversionFactor() IConversionFactorContext
 	RPAR() antlr.TerminalNode
 	Authority() IAuthorityContext
 
@@ -4723,10 +4723,10 @@ func (s *UnitContext) COMMA(i int) antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserCOMMA, i)
 }
 
-func (s *UnitContext) AngularUnit() IAngularUnitContext {
+func (s *UnitContext) ConversionFactor() IConversionFactorContext {
 	var t antlr.RuleContext;
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAngularUnitContext); ok {
+		if _, ok := ctx.(IConversionFactorContext); ok {
 			t = ctx.(antlr.RuleContext);
 			break
 		}
@@ -4736,7 +4736,7 @@ func (s *UnitContext) AngularUnit() IAngularUnitContext {
 		return nil
 	}
 
-	return t.(IAngularUnitContext)
+	return t.(IConversionFactorContext)
 }
 
 func (s *UnitContext) RPAR() antlr.TerminalNode {
@@ -4806,7 +4806,7 @@ func (p *wktcrsv1Parser) Unit() (localctx IUnitContext) {
 	}
 	{
 		p.SetState(314)
-		p.AngularUnit()
+		p.ConversionFactor()
 	}
 	p.SetState(317)
 	p.GetErrorHandler().Sync(p)
@@ -6247,8 +6247,8 @@ errorExit:
 }
 
 
-// IDXBFContext is an interface to support dynamic dispatch.
-type IDXBFContext interface {
+// IDxContext is an interface to support dynamic dispatch.
+type IDxContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6257,60 +6257,60 @@ type IDXBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsDXBFContext differentiates from other interfaces.
-	IsDXBFContext()
+	// IsDxContext differentiates from other interfaces.
+	IsDxContext()
 }
 
-type DXBFContext struct {
+type DxContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyDXBFContext() *DXBFContext {
-	var p = new(DXBFContext)
+func NewEmptyDxContext() *DxContext {
+	var p = new(DxContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dXBF
+	p.RuleIndex = wktcrsv1ParserRULE_dx
 	return p
 }
 
-func InitEmptyDXBFContext(p *DXBFContext)  {
+func InitEmptyDxContext(p *DxContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dXBF
+	p.RuleIndex = wktcrsv1ParserRULE_dx
 }
 
-func (*DXBFContext) IsDXBFContext() {}
+func (*DxContext) IsDxContext() {}
 
-func NewDXBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DXBFContext {
-	var p = new(DXBFContext)
+func NewDxContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DxContext {
+	var p = new(DxContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_dXBF
+	p.RuleIndex = wktcrsv1ParserRULE_dx
 
 	return p
 }
 
-func (s *DXBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *DxContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DXBFContext) NUMBER() antlr.TerminalNode {
+func (s *DxContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *DXBFContext) GetRuleContext() antlr.RuleContext {
+func (s *DxContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *DXBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *DxContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) DXBF() (localctx IDXBFContext) {
-	localctx = NewDXBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 60, wktcrsv1ParserRULE_dXBF)
+func (p *wktcrsv1Parser) Dx() (localctx IDxContext) {
+	localctx = NewDxContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 60, wktcrsv1ParserRULE_dx)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(372)
@@ -6337,8 +6337,8 @@ errorExit:
 }
 
 
-// IDYBFContext is an interface to support dynamic dispatch.
-type IDYBFContext interface {
+// IDyContext is an interface to support dynamic dispatch.
+type IDyContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6347,60 +6347,60 @@ type IDYBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsDYBFContext differentiates from other interfaces.
-	IsDYBFContext()
+	// IsDyContext differentiates from other interfaces.
+	IsDyContext()
 }
 
-type DYBFContext struct {
+type DyContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyDYBFContext() *DYBFContext {
-	var p = new(DYBFContext)
+func NewEmptyDyContext() *DyContext {
+	var p = new(DyContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dYBF
+	p.RuleIndex = wktcrsv1ParserRULE_dy
 	return p
 }
 
-func InitEmptyDYBFContext(p *DYBFContext)  {
+func InitEmptyDyContext(p *DyContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dYBF
+	p.RuleIndex = wktcrsv1ParserRULE_dy
 }
 
-func (*DYBFContext) IsDYBFContext() {}
+func (*DyContext) IsDyContext() {}
 
-func NewDYBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DYBFContext {
-	var p = new(DYBFContext)
+func NewDyContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DyContext {
+	var p = new(DyContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_dYBF
+	p.RuleIndex = wktcrsv1ParserRULE_dy
 
 	return p
 }
 
-func (s *DYBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *DyContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DYBFContext) NUMBER() antlr.TerminalNode {
+func (s *DyContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *DYBFContext) GetRuleContext() antlr.RuleContext {
+func (s *DyContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *DYBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *DyContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) DYBF() (localctx IDYBFContext) {
-	localctx = NewDYBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 62, wktcrsv1ParserRULE_dYBF)
+func (p *wktcrsv1Parser) Dy() (localctx IDyContext) {
+	localctx = NewDyContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 62, wktcrsv1ParserRULE_dy)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(374)
@@ -6427,8 +6427,8 @@ errorExit:
 }
 
 
-// IDZBFContext is an interface to support dynamic dispatch.
-type IDZBFContext interface {
+// IDzContext is an interface to support dynamic dispatch.
+type IDzContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6437,60 +6437,60 @@ type IDZBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsDZBFContext differentiates from other interfaces.
-	IsDZBFContext()
+	// IsDzContext differentiates from other interfaces.
+	IsDzContext()
 }
 
-type DZBFContext struct {
+type DzContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyDZBFContext() *DZBFContext {
-	var p = new(DZBFContext)
+func NewEmptyDzContext() *DzContext {
+	var p = new(DzContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dZBF
+	p.RuleIndex = wktcrsv1ParserRULE_dz
 	return p
 }
 
-func InitEmptyDZBFContext(p *DZBFContext)  {
+func InitEmptyDzContext(p *DzContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_dZBF
+	p.RuleIndex = wktcrsv1ParserRULE_dz
 }
 
-func (*DZBFContext) IsDZBFContext() {}
+func (*DzContext) IsDzContext() {}
 
-func NewDZBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DZBFContext {
-	var p = new(DZBFContext)
+func NewDzContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DzContext {
+	var p = new(DzContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_dZBF
+	p.RuleIndex = wktcrsv1ParserRULE_dz
 
 	return p
 }
 
-func (s *DZBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *DzContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DZBFContext) NUMBER() antlr.TerminalNode {
+func (s *DzContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *DZBFContext) GetRuleContext() antlr.RuleContext {
+func (s *DzContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *DZBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *DzContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) DZBF() (localctx IDZBFContext) {
-	localctx = NewDZBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 64, wktcrsv1ParserRULE_dZBF)
+func (p *wktcrsv1Parser) Dz() (localctx IDzContext) {
+	localctx = NewDzContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 64, wktcrsv1ParserRULE_dz)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(376)
@@ -6517,8 +6517,8 @@ errorExit:
 }
 
 
-// IRXBFContext is an interface to support dynamic dispatch.
-type IRXBFContext interface {
+// IExContext is an interface to support dynamic dispatch.
+type IExContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6527,60 +6527,60 @@ type IRXBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsRXBFContext differentiates from other interfaces.
-	IsRXBFContext()
+	// IsExContext differentiates from other interfaces.
+	IsExContext()
 }
 
-type RXBFContext struct {
+type ExContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyRXBFContext() *RXBFContext {
-	var p = new(RXBFContext)
+func NewEmptyExContext() *ExContext {
+	var p = new(ExContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rXBF
+	p.RuleIndex = wktcrsv1ParserRULE_ex
 	return p
 }
 
-func InitEmptyRXBFContext(p *RXBFContext)  {
+func InitEmptyExContext(p *ExContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rXBF
+	p.RuleIndex = wktcrsv1ParserRULE_ex
 }
 
-func (*RXBFContext) IsRXBFContext() {}
+func (*ExContext) IsExContext() {}
 
-func NewRXBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *RXBFContext {
-	var p = new(RXBFContext)
+func NewExContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ExContext {
+	var p = new(ExContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_rXBF
+	p.RuleIndex = wktcrsv1ParserRULE_ex
 
 	return p
 }
 
-func (s *RXBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *ExContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *RXBFContext) NUMBER() antlr.TerminalNode {
+func (s *ExContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *RXBFContext) GetRuleContext() antlr.RuleContext {
+func (s *ExContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *RXBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ExContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) RXBF() (localctx IRXBFContext) {
-	localctx = NewRXBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 66, wktcrsv1ParserRULE_rXBF)
+func (p *wktcrsv1Parser) Ex() (localctx IExContext) {
+	localctx = NewExContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 66, wktcrsv1ParserRULE_ex)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(378)
@@ -6607,8 +6607,8 @@ errorExit:
 }
 
 
-// IRYBFContext is an interface to support dynamic dispatch.
-type IRYBFContext interface {
+// IEyContext is an interface to support dynamic dispatch.
+type IEyContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6617,60 +6617,60 @@ type IRYBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsRYBFContext differentiates from other interfaces.
-	IsRYBFContext()
+	// IsEyContext differentiates from other interfaces.
+	IsEyContext()
 }
 
-type RYBFContext struct {
+type EyContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyRYBFContext() *RYBFContext {
-	var p = new(RYBFContext)
+func NewEmptyEyContext() *EyContext {
+	var p = new(EyContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rYBF
+	p.RuleIndex = wktcrsv1ParserRULE_ey
 	return p
 }
 
-func InitEmptyRYBFContext(p *RYBFContext)  {
+func InitEmptyEyContext(p *EyContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rYBF
+	p.RuleIndex = wktcrsv1ParserRULE_ey
 }
 
-func (*RYBFContext) IsRYBFContext() {}
+func (*EyContext) IsEyContext() {}
 
-func NewRYBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *RYBFContext {
-	var p = new(RYBFContext)
+func NewEyContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *EyContext {
+	var p = new(EyContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_rYBF
+	p.RuleIndex = wktcrsv1ParserRULE_ey
 
 	return p
 }
 
-func (s *RYBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *EyContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *RYBFContext) NUMBER() antlr.TerminalNode {
+func (s *EyContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *RYBFContext) GetRuleContext() antlr.RuleContext {
+func (s *EyContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *RYBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *EyContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) RYBF() (localctx IRYBFContext) {
-	localctx = NewRYBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 68, wktcrsv1ParserRULE_rYBF)
+func (p *wktcrsv1Parser) Ey() (localctx IEyContext) {
+	localctx = NewEyContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 68, wktcrsv1ParserRULE_ey)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(380)
@@ -6697,8 +6697,8 @@ errorExit:
 }
 
 
-// IRZBFContext is an interface to support dynamic dispatch.
-type IRZBFContext interface {
+// IEzContext is an interface to support dynamic dispatch.
+type IEzContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6707,60 +6707,60 @@ type IRZBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsRZBFContext differentiates from other interfaces.
-	IsRZBFContext()
+	// IsEzContext differentiates from other interfaces.
+	IsEzContext()
 }
 
-type RZBFContext struct {
+type EzContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyRZBFContext() *RZBFContext {
-	var p = new(RZBFContext)
+func NewEmptyEzContext() *EzContext {
+	var p = new(EzContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rZBF
+	p.RuleIndex = wktcrsv1ParserRULE_ez
 	return p
 }
 
-func InitEmptyRZBFContext(p *RZBFContext)  {
+func InitEmptyEzContext(p *EzContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_rZBF
+	p.RuleIndex = wktcrsv1ParserRULE_ez
 }
 
-func (*RZBFContext) IsRZBFContext() {}
+func (*EzContext) IsEzContext() {}
 
-func NewRZBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *RZBFContext {
-	var p = new(RZBFContext)
+func NewEzContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *EzContext {
+	var p = new(EzContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_rZBF
+	p.RuleIndex = wktcrsv1ParserRULE_ez
 
 	return p
 }
 
-func (s *RZBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *EzContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *RZBFContext) NUMBER() antlr.TerminalNode {
+func (s *EzContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *RZBFContext) GetRuleContext() antlr.RuleContext {
+func (s *EzContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *RZBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *EzContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) RZBF() (localctx IRZBFContext) {
-	localctx = NewRZBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 70, wktcrsv1ParserRULE_rZBF)
+func (p *wktcrsv1Parser) Ez() (localctx IEzContext) {
+	localctx = NewEzContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 70, wktcrsv1ParserRULE_ez)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(382)
@@ -6787,8 +6787,8 @@ errorExit:
 }
 
 
-// IMBFContext is an interface to support dynamic dispatch.
-type IMBFContext interface {
+// IPpmContext is an interface to support dynamic dispatch.
+type IPpmContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -6797,60 +6797,60 @@ type IMBFContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsMBFContext differentiates from other interfaces.
-	IsMBFContext()
+	// IsPpmContext differentiates from other interfaces.
+	IsPpmContext()
 }
 
-type MBFContext struct {
+type PpmContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyMBFContext() *MBFContext {
-	var p = new(MBFContext)
+func NewEmptyPpmContext() *PpmContext {
+	var p = new(PpmContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_mBF
+	p.RuleIndex = wktcrsv1ParserRULE_ppm
 	return p
 }
 
-func InitEmptyMBFContext(p *MBFContext)  {
+func InitEmptyPpmContext(p *PpmContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_mBF
+	p.RuleIndex = wktcrsv1ParserRULE_ppm
 }
 
-func (*MBFContext) IsMBFContext() {}
+func (*PpmContext) IsPpmContext() {}
 
-func NewMBFContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *MBFContext {
-	var p = new(MBFContext)
+func NewPpmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *PpmContext {
+	var p = new(PpmContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_mBF
+	p.RuleIndex = wktcrsv1ParserRULE_ppm
 
 	return p
 }
 
-func (s *MBFContext) GetParser() antlr.Parser { return s.parser }
+func (s *PpmContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *MBFContext) NUMBER() antlr.TerminalNode {
+func (s *PpmContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *MBFContext) GetRuleContext() antlr.RuleContext {
+func (s *PpmContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *MBFContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *PpmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) MBF() (localctx IMBFContext) {
-	localctx = NewMBFContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 72, wktcrsv1ParserRULE_mBF)
+func (p *wktcrsv1Parser) Ppm() (localctx IPpmContext) {
+	localctx = NewPpmContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 72, wktcrsv1ParserRULE_ppm)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(384)
@@ -7057,8 +7057,8 @@ errorExit:
 }
 
 
-// IAngularUnitContext is an interface to support dynamic dispatch.
-type IAngularUnitContext interface {
+// IConversionFactorContext is an interface to support dynamic dispatch.
+type IConversionFactorContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -7067,60 +7067,60 @@ type IAngularUnitContext interface {
 	// Getter signatures
 	NUMBER() antlr.TerminalNode
 
-	// IsAngularUnitContext differentiates from other interfaces.
-	IsAngularUnitContext()
+	// IsConversionFactorContext differentiates from other interfaces.
+	IsConversionFactorContext()
 }
 
-type AngularUnitContext struct {
+type ConversionFactorContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyAngularUnitContext() *AngularUnitContext {
-	var p = new(AngularUnitContext)
+func NewEmptyConversionFactorContext() *ConversionFactorContext {
+	var p = new(ConversionFactorContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_angularUnit
+	p.RuleIndex = wktcrsv1ParserRULE_conversionFactor
 	return p
 }
 
-func InitEmptyAngularUnitContext(p *AngularUnitContext)  {
+func InitEmptyConversionFactorContext(p *ConversionFactorContext)  {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = wktcrsv1ParserRULE_angularUnit
+	p.RuleIndex = wktcrsv1ParserRULE_conversionFactor
 }
 
-func (*AngularUnitContext) IsAngularUnitContext() {}
+func (*ConversionFactorContext) IsConversionFactorContext() {}
 
-func NewAngularUnitContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *AngularUnitContext {
-	var p = new(AngularUnitContext)
+func NewConversionFactorContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ConversionFactorContext {
+	var p = new(ConversionFactorContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = wktcrsv1ParserRULE_angularUnit
+	p.RuleIndex = wktcrsv1ParserRULE_conversionFactor
 
 	return p
 }
 
-func (s *AngularUnitContext) GetParser() antlr.Parser { return s.parser }
+func (s *ConversionFactorContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *AngularUnitContext) NUMBER() antlr.TerminalNode {
+func (s *ConversionFactorContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(wktcrsv1ParserNUMBER, 0)
 }
 
-func (s *AngularUnitContext) GetRuleContext() antlr.RuleContext {
+func (s *ConversionFactorContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *AngularUnitContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ConversionFactorContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 
 
 
-func (p *wktcrsv1Parser) AngularUnit() (localctx IAngularUnitContext) {
-	localctx = NewAngularUnitContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 78, wktcrsv1ParserRULE_angularUnit)
+func (p *wktcrsv1Parser) ConversionFactor() (localctx IConversionFactorContext) {
+	localctx = NewConversionFactorContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 78, wktcrsv1ParserRULE_conversionFactor)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(390)

@@ -133,13 +133,13 @@ func NodeToMap(node antlr.Tree) (MapObj, error) {
 		})
 	case wktcrsv1.ITowgs84Context:
 		return createMap(mapKeysBuilder{
-			"Dx": func() (any, error) { return nodeToNumber(n.DXBF()) },
-			"Dy": func() (any, error) { return nodeToNumber(n.DYBF()) },
-			"Dz": func() (any, error) { return nodeToNumber(n.DZBF()) },
-			"Rx": func() (any, error) { return nodeToNumber(n.RXBF()) },
-			"Ry": func() (any, error) { return nodeToNumber(n.RYBF()) },
-			"Rz": func() (any, error) { return nodeToNumber(n.RZBF()) },
-			"M":  func() (any, error) { return nodeToNumber(n.MBF()) },
+			"Dx": func() (any, error) { return nodeToNumber(n.Dx()) },
+			"Dy": func() (any, error) { return nodeToNumber(n.Dy()) },
+			"Dz": func() (any, error) { return nodeToNumber(n.Dz()) },
+			"Rx": func() (any, error) { return nodeToNumber(n.Ex()) },
+			"Ry": func() (any, error) { return nodeToNumber(n.Ey()) },
+			"Rz": func() (any, error) { return nodeToNumber(n.Ez()) },
+			"M":  func() (any, error) { return nodeToNumber(n.Ppm()) },
 		})
 	case wktcrsv1.IAuthorityContext:
 		return createMap(mapKeysBuilder{
@@ -155,7 +155,7 @@ func NodeToMap(node antlr.Tree) (MapObj, error) {
 	case wktcrsv1.IUnitContext:
 		return createMap(mapKeysBuilder{
 			"name":        func() (any, error) { return nodeToStr(n.Name()) },
-			"angularUnit": func() (any, error) { return nodeToNumber(n.AngularUnit()) },
+			"angularUnit": func() (any, error) { return nodeToNumber(n.ConversionFactor()) },
 		})
 	case wktcrsv1.IAxisContext:
 		return createMap(mapKeysBuilder{
@@ -205,15 +205,15 @@ func nodeToNumber(node antlr.Tree) (*float64, error) {
 	case wktcrsv1.ITypeContext,
 		wktcrsv1.ISemiMajorAxisContext,
 		wktcrsv1.IInverseFlatteningContext,
-		wktcrsv1.IDXBFContext,
-		wktcrsv1.IDYBFContext,
-		wktcrsv1.IDZBFContext,
-		wktcrsv1.IRXBFContext,
-		wktcrsv1.IRYBFContext,
-		wktcrsv1.IRZBFContext,
-		wktcrsv1.IMBFContext,
+		wktcrsv1.IDxContext,
+		wktcrsv1.IDyContext,
+		wktcrsv1.IDzContext,
+		wktcrsv1.IExContext,
+		wktcrsv1.IEyContext,
+		wktcrsv1.IEzContext,
+		wktcrsv1.IPpmContext,
 		wktcrsv1.ILongitudeContext,
-		wktcrsv1.IAngularUnitContext,
+		wktcrsv1.IConversionFactorContext,
 		wktcrsv1.IValueContext,
 		wktcrsv1.INumberContext:
 		str = n.(antlr.ParseTree).GetText()
