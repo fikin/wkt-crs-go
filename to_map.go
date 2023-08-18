@@ -192,8 +192,15 @@ func nodeToStr(node antlr.Tree) (*string, error) {
 	default:
 		return nil, fmt.Errorf("expected string node type here but found : %s : %v", n, node)
 	}
-	str = str[1 : len(str)-1]
+	str = stripQuotes(str)
 	return &str, nil
+}
+
+func stripQuotes(str string) string {
+	if str[0:1] == "\"" {
+		return str[1 : len(str)-1]
+	}
+	return str
 }
 
 func nodeToNumber(node antlr.Tree) (*float64, error) {

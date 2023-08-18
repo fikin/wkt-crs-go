@@ -86,14 +86,14 @@ func assertExpectedHash(t *testing.T, exp, actual string) {
 }
 
 func assertToProps(t *testing.T, is antlr.CharStream) string {
-	tree := ParsePropsFileAST(is)
+	tree := NewWktcrsv1Parser(is).PropsFile()
 	out := &strings.Builder{}
 	assert.NoError(t, NodeToText(tree, out))
 	return out.String()
 }
 
 func assertToJSON(t *testing.T, is antlr.CharStream) string {
-	tree := ParsePropsFileAST(is)
+	tree := NewWktcrsv1Parser(is).PropsFile()
 	arr, err := PropsFileNodeToArr(tree)
 	require.NoError(t, err)
 	out := &bytes.Buffer{}
@@ -104,7 +104,7 @@ func assertToJSON(t *testing.T, is antlr.CharStream) string {
 }
 
 func assertToPrettyText(t *testing.T, is antlr.CharStream) string {
-	tree := ParsePropsFileAST(is)
+	tree := NewWktcrsv1Parser(is).PropsFile()
 	out := &strings.Builder{}
 	assert.NoError(t, NodeToPrettyText(tree, "", "  ", out))
 	return out.String()

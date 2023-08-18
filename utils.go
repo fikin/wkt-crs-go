@@ -41,13 +41,12 @@ func visitChildren(node antlr.Tree, visitor visitorFn) error {
 	return nil
 }
 
-// ParsePropsFileAST is parsing input of epsg.properties file and
-// returns AST root node.
-func ParsePropsFileAST(is antlr.CharStream) wktcrsv1.IPropsFileContext {
+// NewWktcrsv1Parser is returning parser for given input.
+func NewWktcrsv1Parser(is antlr.CharStream) *wktcrsv1.Wktcrsv1Parser {
 	lexer := wktcrsv1.Newwktcrsv1Lexer(is)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
-	parser := wktcrsv1.Newwktcrsv1Parser(stream)
+	parser := wktcrsv1.NewWktcrsv1Parser(stream)
 	parser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	parser.BuildParseTrees = true
-	return parser.PropsFile()
+	return parser
 }
