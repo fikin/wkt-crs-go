@@ -1,0 +1,103 @@
+// Code generated from {{.inFileName}} by wktcrs parser. DO NOT EDIT.
+package {{.packageName}}
+
+{{- define "func_header"                    -}}
+/* 
+{{cammelCase .AuthName .AuthCode}} is:
+{{prettytext .Node}} 
+*/
+func {{cammelCase .AuthName .AuthCode}}
+{{- end                                     -}}
+
+{{- define "datum_args" -}}
+Helmert(
+{{- formatNumber .SemiMajorAxis         -}},
+{{- formatNumber .InverseFlattening     -}},
+{{- formatNumber .Dx                    -}},
+{{- formatNumber .Dy                    -}},
+{{- formatNumber .Dz                    -}},
+{{- formatNumber (nvl .Rx    0.0)       -}},
+{{- formatNumber (nvl .Ry    0.0)       -}},
+{{- formatNumber (nvl .Rz    0.0)       -}},
+{{- formatNumber (nvl .Mpp   0.0)       -}}
+)
+{{- end -}}
+
+{{- define "projection_args"                        -}}
+{{- if eq .ProjectionName "Transverse Mercator"     -}}
+TransverseMercator(
+{{- formatNumber .Projection.CentralMeridian        -}},
+{{- formatNumber .Projection.LatitudeOfOrigin       -}},
+{{- formatNumber .Projection.ScaleFactor            -}},
+{{- formatNumber .Projection.FalseEasting           -}},
+{{- formatNumber .Projection.FalseNorthing          -}}
+)
+{{- else if eq .ProjectionName "Popular Visualisation Pseudo Mercator"     -}}
+WebMercator()
+{{- else if eq .ProjectionName "Lambert Azimuthal Equal Area"     -}}
+LambertAzimuthalEqualArea(
+{{- formatNumber .Projection.LatitudeOfCenter       -}},
+{{- formatNumber .Projection.LongitudeOfCenter      -}},
+{{- formatNumber .Projection.FalseEasting           -}},
+{{- formatNumber .Projection.FalseNorthing          -}}
+)
+{{- else if eq .ProjectionName "Lambert Conformal Conic 2sp"     -}}
+LambertConformalConic2SP(
+{{- formatNumber .Projection.CentralMeridian        -}},
+{{- formatNumber .Projection.LatitudeOfOrigin       -}},
+{{- formatNumber .Projection.StandardParallel1      -}},
+{{- formatNumber .Projection.StandardParallel2      -}},
+{{- formatNumber .Projection.FalseEasting           -}},
+{{- formatNumber .Projection.FalseNorthing          -}}
+)
+{{- else if eq .ProjectionName "Albers Conic Equal Area"     -}}
+AlbersEqualAreaConic(
+{{- formatNumber .Projection.StandardParallel1      -}},
+{{- formatNumber .Projection.StandardParallel2      -}},
+{{- formatNumber .Projection.LatitudeOfOrigin       -}},
+{{- formatNumber .Projection.CentralMeridian        -}},
+{{- formatNumber .Projection.FalseEasting           -}},
+{{- formatNumber .Projection.FalseNorthing          -}}
+)
+{{- else -}}
+ERROR() /* should not have happened, Wgs84Repo must filter unsupported projection types out! */
+{{- end                                             -}}
+{{- end                                             -}}
+
+{{ define "projcs_to_fn" }}
+{{ template "func_header" . }}() ProjectedReferenceSystem {
+    return {{template "datum_args" .Datum}}.{{template "projection_args" .}}
+}
+{{ end }}
+
+{{ define "geogcs_to_fn" }}
+{{ template "func_header" . }}() GeographicReferenceSystem {
+    return {{template "datum_args" .Datum}}.LonLat()
+}
+{{ end }}
+
+{{ define "geoccs_to_fn" }}
+{{ template "func_header" . }}() GeocentricReferenceSystem {
+    return {{template "datum_args" .Datum}}.XYZ()
+}
+{{ end }}
+
+{{ range .repo.ProjCs -}}
+{{- template "projcs_to_fn" . -}}
+{{ end -}}
+
+{{ range .repo.GeoGcs -}}
+{{- template "geogcs_to_fn" . -}}
+{{ end -}}
+
+{{ range .repo.GeoCcs -}}
+{{- template "geoccs_to_fn" . -}}
+{{ end -}}
+
+{{ range $reason, $lst := .repo.Unsupported }}
+// {{ $reason }} :
+{{ range $lst -}}
+//      {{ totext . }}
+{{ end -}}
+{{ end }}
+

@@ -48,8 +48,11 @@ generate/%:
 build: ## Build command line apps
 	go build -o target/parser cmd/parser/main.go
 
-test: ${GOTESTSUM} $(EPSG_PROPS_FILE) ## Run unit tests
+test: ${GOTESTSUM} ## Run unit tests
 	${GOTESTSUM} --jsonfile target/units-tests-output.log --junitfile=target/unit-junit.xml -- -race -cover -count=1 ./...
+
+integration-test: $(EPSG_PROPS_FILE) ## Run tests against complete epsg.properties
+	${GOTESTSUM} --jsonfile target/integration-tests-output.log --junitfile=target/integration-junit.xml -- -race -cover -tags=integration -run='^TestIntegration' -count=1 ./...
 
 .PHONY: lint
 lint: ${GOLANGCI_LINT} ${COMPLEXITY_LINT}  ## Lint the code

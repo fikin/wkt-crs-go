@@ -174,7 +174,7 @@ func NodeToMap(node antlr.Tree) (MapObj, error) {
 			"value": func() (any, error) { return nodeToNumber(n.Value()) },
 		})
 	default:
-		return nil, fmt.Errorf("expected object node type here but found : %s : %v", n, node)
+		return nil, fmt.Errorf("expected object node type here but found : %s : %#v", n, node)
 	}
 }
 
