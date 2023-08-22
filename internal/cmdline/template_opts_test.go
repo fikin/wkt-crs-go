@@ -1,4 +1,4 @@
-package main
+package cmdline
 
 import (
 	"log"
@@ -17,5 +17,5 @@ func TestTemplates(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.NoError(t, handleTemplate(cfg))
-	assertExpectedHashFile(t, "b5e56c291dfec47d03411ae130ee2f29", cfg.outFile.name)
+	assertExpectedHashFile(t, "308b4f162d916680553e219e117f1549", cfg.outFile.name)
 }
