@@ -1,6 +1,18 @@
 // Code generated from {{.inFileName}} by wktcrs parser. DO NOT EDIT.
 package {{.packageName}}
 
+// Wgs84CRS is representing configured projected, geographical and geocentric CRS
+type Wgs84CRS interface {
+    // ToWGS84 method is one method of the CoordinateReferenceSystem interface.
+    ToWGS84(lon, lat, h float64) (x0, y0, z0 float64)
+    // FromWGS84 method is one method of the CoordinateReferenceSystem interface.
+    FromWGS84(x0, y0, z0 float64) (lon, lat, h float64)
+    // SafeTo provides the transformation to another CoordinateReferenceSystem
+    SafeTo(to CoordinateReferenceSystem) SafeFunc
+    // SafeFrom provides the transformation from another CoordinateReferenceSystem.
+    SafeFrom(from CoordinateReferenceSystem) SafeFunc
+}
+
 {{- define "func_header"                    -}}
 /* 
 {{cammelCase .AuthName .AuthCode}} is:
@@ -93,6 +105,28 @@ ERROR() /* should not have happened, Wgs84Repo must filter unsupported projectio
 {{ range .repo.GeoCcs -}}
 {{- template "geoccs_to_fn" . -}}
 {{ end -}}
+
+{{ define "code_case" }}
+    case "{{.AuthName}}:{{.AuthCode}}": 
+        return {{cammelCase .AuthName .AuthCode}}(), true
+{{ end }}
+
+func EpsgLookup(code string) (Wgs84CRS,bool) {
+    switch code {
+{{- range .repo.ProjCs -}}
+{{- template "code_case" . -}}
+{{- end -}}
+{{- range .repo.GeoGcs -}}
+{{- template "code_case" . -}}
+{{- end -}}
+{{- range .repo.GeoCcs }}
+{{- template "code_case" . -}}
+{{- end }}
+    default:
+        return nil, false
+    }
+
+}
 
 {{ range $reason, $lst := .repo.Unsupported }}
 // {{ $reason }} :
