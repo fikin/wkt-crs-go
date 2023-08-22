@@ -16,7 +16,7 @@ func nodeToText2(node antlr.Tree, out io.StringWriter, nl newLineWriter) error {
 	switch n := node.(type) {
 	case wktcrsv1.IPropRowContext:
 		nl(out, "")
-		return visitChildren(n, func(t antlr.Tree) error { return nodeToText2(t, out, nl) })
+		return VisitChildren(n, func(t antlr.Tree) error { return nodeToText2(t, out, nl) })
 	case antlr.ErrorNode:
 		return writeString(out, ">>%s<<", n.(antlr.ParseTree).GetText())
 	case antlr.TerminalNode:
@@ -27,6 +27,6 @@ func nodeToText2(node antlr.Tree, out io.StringWriter, nl newLineWriter) error {
 			return writeString(out, n.(antlr.ParseTree).GetText())
 		}
 	default:
-		return visitChildren(n, func(t antlr.Tree) error { return nodeToText2(t, out, nl) })
+		return VisitChildren(n, func(t antlr.Tree) error { return nodeToText2(t, out, nl) })
 	}
 }

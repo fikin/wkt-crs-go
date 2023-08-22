@@ -12,11 +12,11 @@ import (
 )
 
 type DatumDef struct {
-	Name      string              `json:"name"`
-	Type      string              `json:"type"`
-	Ellipsoid *string             `json:"ellipsoid"`
-	ToWGS84   map[string]*float64 `json:"toWgs84,omitempty"`
-	Node      antlr.Tree          `json:"-"`
+	Name      string             `json:"name"`
+	Type      string             `json:"type"`
+	Ellipsoid *string            `json:"ellipsoid"`
+	ToWGS84   map[string]float64 `json:"toWgs84,omitempty"`
+	Node      antlr.Tree         `json:"-"`
 }
 
 type EllipsoidDef struct {
@@ -99,22 +99,22 @@ func AuthoritiesIndexPropFile(node wktcrsv1.IPropsFileContext) (*AuthoritiesIndx
 func authoritiesIndexNode(indx *AuthoritiesIndx, node antlr.Tree) error {
 	switch n := node.(type) {
 	case wktcrsv1.ICompdcsContext:
-		_, err := getCompdcs(indx, n)
+		_, err := authorithesIndxCompdcs(indx, n)
 		return err
 	case wktcrsv1.IVertcsContext:
-		_ = getVertcs(indx, n)
+		_ = authoritiesIndexVertcs(indx, n)
 		return nil
 	case wktcrsv1.ILocalcsContext:
-		_ = getLocalcs(indx, n)
+		_ = authoritiesIndexLocalcs(indx, n)
 		return nil
 	case wktcrsv1.IProjcsContext:
-		_, err := getProjcs(indx, n)
+		_, err := authoritiesIndexProjcs(indx, n)
 		return err
 	case wktcrsv1.IGeoccsContext:
-		_ = getGeoccs(indx, n)
+		_ = authoritiesIndexGeoccs(indx, n)
 		return nil
 	case wktcrsv1.IGeogcsContext:
-		_ = getGeogcs(indx, n)
+		_ = authoritiesIndexGeogcs(indx, n)
 		return nil
 	case wktcrsv1.IDatumContext,
 		wktcrsv1.IVertdatumContext,
@@ -128,33 +128,33 @@ func authoritiesIndexNode(indx *AuthoritiesIndx, node antlr.Tree) error {
 		wktcrsv1.IAxisContext:
 		return fmt.Errorf("should not be here : %v", n)
 	default:
-		return visitChildren(n, func(t antlr.Tree) error {
+		return VisitChildren(n, func(t antlr.Tree) error {
 			return authoritiesIndexNode(indx, t)
 		})
 	}
 }
 
-func getCompdcs(indx *AuthoritiesIndx, n wktcrsv1.ICompdcsContext) (string, error) {
+func authorithesIndxCompdcs(indx *AuthoritiesIndx, n wktcrsv1.ICompdcsContext) (string, error) {
 	var err error
 	var first string
 	switch {
 	case n.Projcs() != nil:
-		first, err = getProjcs(indx, n.Projcs())
+		first, err = authoritiesIndexProjcs(indx, n.Projcs())
 		if err != nil {
 			return "", err
 		}
 	case n.Geogcs() != nil:
-		first = getGeogcs(indx, n.Geogcs())
+		first = authoritiesIndexGeogcs(indx, n.Geogcs())
 	default:
 		return "", fmt.Errorf("compdcs has no first coordinate system : %v", n)
 	}
 	def := Compdcs{
 		Name:     stripQuotes(n.Name().GetText()),
 		FirstCs:  first,
-		SecondCs: getVertcs(indx, n.Vertcs()),
+		SecondCs: authoritiesIndexVertcs(indx, n.Vertcs()),
 		Node:     n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	if old, ok := indx.Compdcs[authCode]; ok {
 		if old.FirstCs == def.FirstCs && old.SecondCs == def.SecondCs {
 			return authCode, nil
@@ -165,13 +165,13 @@ func getCompdcs(indx *AuthoritiesIndx, n wktcrsv1.ICompdcsContext) (string, erro
 	return authCode, nil
 }
 
-func getLocalcs(indx *AuthoritiesIndx, n wktcrsv1.ILocalcsContext) string {
+func authoritiesIndexLocalcs(indx *AuthoritiesIndx, n wktcrsv1.ILocalcsContext) string {
 	def := Localcs{
 		Name:  stripQuotes(n.Name().GetText()),
-		Datum: getOtherDatum(indx, n.Localdatum().Authority(), n.Localdatum().Name(), n.Localdatum().Type_(), n.Localdatum()),
+		Datum: authoritiesIndexOtherDatum(indx, n.Localdatum().Authority(), n.Localdatum().Name(), n.Localdatum().Type_(), n.Localdatum()),
 		Node:  n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	if old, ok := indx.Localcs[authCode]; ok {
 		if old.Datum == def.Datum {
 			return authCode
@@ -182,13 +182,13 @@ func getLocalcs(indx *AuthoritiesIndx, n wktcrsv1.ILocalcsContext) string {
 	return authCode
 }
 
-func getVertcs(indx *AuthoritiesIndx, n wktcrsv1.IVertcsContext) string {
+func authoritiesIndexVertcs(indx *AuthoritiesIndx, n wktcrsv1.IVertcsContext) string {
 	def := Vertcs{
 		Name:  stripQuotes(n.Name().GetText()),
-		Datum: getOtherDatum(indx, n.Vertdatum().Authority(), n.Vertdatum().Name(), n.Vertdatum().Type_(), n.Vertdatum()),
+		Datum: authoritiesIndexOtherDatum(indx, n.Vertdatum().Authority(), n.Vertdatum().Name(), n.Vertdatum().Type_(), n.Vertdatum()),
 		Node:  n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	if old, ok := indx.Vertcs[authCode]; ok {
 		if old.Datum == def.Datum {
 			return authCode
@@ -199,29 +199,29 @@ func getVertcs(indx *AuthoritiesIndx, n wktcrsv1.IVertcsContext) string {
 	return authCode
 }
 
-func getOtherDatum(indx *AuthoritiesIndx, auth wktcrsv1.IAuthorityContext, name wktcrsv1.INameContext, datumType wktcrsv1.ITypeContext, n antlr.Tree) string {
+func authoritiesIndexOtherDatum(indx *AuthoritiesIndx, auth wktcrsv1.IAuthorityContext, name wktcrsv1.INameContext, datumType wktcrsv1.ITypeContext, n antlr.Tree) string {
 	def := DatumDef{
 		Name: stripQuotes(name.GetText()),
 		Type: stripQuotes(datumType.GetText()),
 		Node: n,
 	}
-	authCode := getAuthorityCode(indx, auth, def.Name)
-	return getDatumID(indx, def, authCode)
+	authCode := authoritiesIndexAuthorityCode(indx, auth, def.Name)
+	return authoritiesIndexDatumID(indx, def, authCode)
 }
 
-func getProjcs(indx *AuthoritiesIndx, n wktcrsv1.IProjcsContext) (string, error) {
-	def := ProjcsDef{
-		Name:       stripQuotes(n.Name().GetText()),
-		GeoGcs:     getGeogcs(indx, n.Geogcs()),
-		Projection: getProjection(indx, n.Projection()),
-		Params:     make(map[string]float64),
-		Node:       n,
-	}
-	err := paramsToProjectionDef(&def, n)
+func authoritiesIndexProjcs(indx *AuthoritiesIndx, n wktcrsv1.IProjcsContext) (string, error) {
+	params, err := projParamsToMap(n)
 	if err != nil {
 		return "", err
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	def := ProjcsDef{
+		Name:       stripQuotes(n.Name().GetText()),
+		GeoGcs:     authoritiesIndexGeogcs(indx, n.Geogcs()),
+		Projection: authoritiesIndexProjection(indx, n.Projection()),
+		Params:     params,
+		Node:       n,
+	}
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	repo := indx.Projcs
 	if old, ok := repo[authCode]; ok {
 		if old.GeoGcs == def.GeoGcs && old.Projection == def.Projection && maps.Equal(old.Params, def.Params) {
@@ -234,9 +234,9 @@ func getProjcs(indx *AuthoritiesIndx, n wktcrsv1.IProjcsContext) (string, error)
 	return authCode, nil
 }
 
-func getProjection(indx *AuthoritiesIndx, n wktcrsv1.IProjectionContext) string {
+func authoritiesIndexProjection(indx *AuthoritiesIndx, n wktcrsv1.IProjectionContext) string {
 	name := textToCapitalized(stripQuotes(n.Name().GetText()))
-	authCode := getAuthorityCode(indx, n.Authority(), name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), name)
 	repo := indx.Projections
 	for k, v := range repo {
 		if v == authCode {
@@ -254,13 +254,13 @@ func getProjection(indx *AuthoritiesIndx, n wktcrsv1.IProjectionContext) string 
 	return authCode
 }
 
-func getGeoccs(indx *AuthoritiesIndx, n wktcrsv1.IGeoccsContext) string {
+func authoritiesIndexGeoccs(indx *AuthoritiesIndx, n wktcrsv1.IGeoccsContext) string {
 	def := GeoCcsDef{
 		Name:  stripQuotes(n.Name().GetText()),
-		Datum: getDatum(indx, n.Datum()),
+		Datum: authoritiesIndexDatum(indx, n.Datum()),
 		Node:  n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	repo := indx.GeoCcs
 	if old, ok := repo[authCode]; ok {
 		if old.Datum == def.Datum {
@@ -273,13 +273,13 @@ func getGeoccs(indx *AuthoritiesIndx, n wktcrsv1.IGeoccsContext) string {
 	return authCode
 }
 
-func getGeogcs(indx *AuthoritiesIndx, n wktcrsv1.IGeogcsContext) string {
+func authoritiesIndexGeogcs(indx *AuthoritiesIndx, n wktcrsv1.IGeogcsContext) string {
 	def := GeoGcsDef{
 		Name:  stripQuotes(n.Name().GetText()),
-		Datum: getDatum(indx, n.Datum()),
+		Datum: authoritiesIndexDatum(indx, n.Datum()),
 		Node:  n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	repo := indx.GeoGcs
 	if old, ok := repo[authCode]; ok {
 		if old.Datum == def.Datum {
@@ -292,12 +292,12 @@ func getGeogcs(indx *AuthoritiesIndx, n wktcrsv1.IGeogcsContext) string {
 	return authCode
 }
 
-func getDatum(indx *AuthoritiesIndx, n wktcrsv1.IDatumContext) string {
-	towgs, err := toWGS84Def(n.Towgs84())
+func authoritiesIndexDatum(indx *AuthoritiesIndx, n wktcrsv1.IDatumContext) string {
+	towgs, err := wgs84ToMap(n.Towgs84())
 	if err != nil {
 		return ""
 	}
-	ellipsoid, err := getSpheroidCode(indx, n.Spheroid())
+	ellipsoid, err := authoritiesIndexSpheroidCode(indx, n.Spheroid())
 	if err != nil {
 		return ""
 	}
@@ -308,23 +308,15 @@ func getDatum(indx *AuthoritiesIndx, n wktcrsv1.IDatumContext) string {
 		ToWGS84:   towgs,
 		Node:      n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
-	return getDatumID(indx, def, authCode)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
+	return authoritiesIndexDatumID(indx, def, authCode)
 }
 
-func getDatumID(indx *AuthoritiesIndx, def DatumDef, authCode string) string {
+func authoritiesIndexDatumID(indx *AuthoritiesIndx, def DatumDef, authCode string) string {
 	if old, ok := indx.Datums[authCode]; ok {
 		if old.Type == def.Type &&
 			strPtrEqual(old.Ellipsoid, def.Ellipsoid) &&
-			maps.EqualFunc(old.ToWGS84, def.ToWGS84, func(a, b *float64) bool {
-				if a == nil && b == nil {
-					return true
-				}
-				if a != nil && b != nil {
-					return *a == *b
-				}
-				return false
-			}) {
+			maps.Equal(old.ToWGS84, def.ToWGS84) {
 			return authCode
 		}
 		authCode = findNextFreeKey(maps.Keys(indx.Datums), authCode)
@@ -343,21 +335,21 @@ func strPtrEqual(a, b *string) bool {
 	return false
 }
 
-func getSpheroidCode(indx *AuthoritiesIndx, n wktcrsv1.ISpheroidContext) (*string, error) {
+func authoritiesIndexSpheroidCode(indx *AuthoritiesIndx, n wktcrsv1.ISpheroidContext) (*string, error) {
 	if n == nil {
 		return nil, nil
 	}
-	arr, err := nodesToNumbers([]antlr.Tree{n.SemiMajorAxis(), n.InverseFlattening()})
+	arr, err := nodesToNumbers([]string{"A", "B"}, []antlr.Tree{n.SemiMajorAxis(), n.InverseFlattening()})
 	if err != nil {
 		return nil, err
 	}
 	def := EllipsoidDef{
 		Name:              textToCapitalized(stripQuotes(n.Name().GetText())),
-		SemiMajorAxis:     *arr[0],
-		InverseFlattening: *arr[1],
+		SemiMajorAxis:     arr["A"],
+		InverseFlattening: arr["B"],
 		Node:              n,
 	}
-	authCode := getAuthorityCode(indx, n.Authority(), def.Name)
+	authCode := authoritiesIndexAuthorityCode(indx, n.Authority(), def.Name)
 	repo := indx.Ellipshoids
 	if old, ok := repo[authCode]; ok {
 		if old.InverseFlattening == def.InverseFlattening && old.SemiMajorAxis == def.SemiMajorAxis {
@@ -382,7 +374,7 @@ func findNextFreeKey(tbl []string, key string) string {
 	}
 }
 
-func getAuthorityCode(indx *AuthoritiesIndx, n wktcrsv1.IAuthorityContext, name string) string {
+func authoritiesIndexAuthorityCode(indx *AuthoritiesIndx, n wktcrsv1.IAuthorityContext, name string) string {
 	if n == nil {
 		authCode := textToCapitalized(name)
 		if _, ok := indx.Authorities[authCode]; ok {
@@ -421,49 +413,50 @@ func textToSomething(str, join string) string {
 	return strings.Join(arr, join)
 }
 
-func paramsToProjectionDef(p *ProjcsDef, node antlr.Tree) error {
+func projParamsToMap(node antlr.Tree) (map[string]float64, error) {
+	ret := map[string]float64{}
 	for _, nn := range node.GetChildren() {
 		// nolint:gocritic
 		switch n := nn.(type) {
 		case wktcrsv1.IParameterContext:
 			val, err := nodeToNumber(n.Value())
 			if err != nil {
-				return err
+				return nil, err
 			}
-			p.Params[textToCammel(stripQuotes(n.Name().GetText()))] = *val
+			ret[textToCammel(stripQuotes(n.Name().GetText()))] = *val
 		}
 	}
-	return nil
+	return ret, nil
 }
 
-func toWGS84Def(node wktcrsv1.ITowgs84Context) (map[string]*float64, error) {
+func wgs84ToMap(node wktcrsv1.ITowgs84Context) (map[string]float64, error) {
 	if node == nil {
 		return nil, nil
 	}
-	arr, err := nodesToNumbers([]antlr.Tree{
-		node.Dx(), node.Dy(), node.Dz(),
-		node.Ex(), node.Ey(), node.Ez(),
-		node.Ppm(),
-	})
-	return map[string]*float64{
-		"Dx":  arr[0],
-		"Dy":  arr[1],
-		"Dz":  arr[2],
-		"Rx":  arr[3],
-		"Ry":  arr[4],
-		"Rz":  arr[5],
-		"Mpp": arr[6],
-	}, err
+	arr, err := nodesToNumbers(
+		[]string{"Dx", "Dy", "Dz", "Rx", "Ry", "Rz", "Mpp"},
+		[]antlr.Tree{
+			node.Dx(), node.Dy(), node.Dz(),
+			node.Ex(), node.Ey(), node.Ez(),
+			node.Ppm(),
+		})
+	return arr, err
 }
 
-func nodesToNumbers(lst []antlr.Tree) ([]*float64, error) {
-	arr := make([]*float64, len(lst))
-	for i, n := range lst {
+func nodesToNumbers(keys []string, values []antlr.Tree) (map[string]float64, error) {
+	arr := map[string]float64{}
+	return arr, nodesToMapNumbers(arr, keys, values)
+}
+
+func nodesToMapNumbers(arr map[string]float64, keys []string, values []antlr.Tree) error {
+	for i, n := range values {
 		val, err := nodeToNumber(n)
 		if err != nil {
-			return arr, err
+			return err
 		}
-		arr[i] = val
+		if val != nil {
+			arr[keys[i]] = *val
+		}
 	}
-	return arr, nil
+	return nil
 }
