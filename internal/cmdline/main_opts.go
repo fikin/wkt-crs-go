@@ -1,3 +1,4 @@
+// Package cmdline is having all cmdline supporting code.
 package cmdline
 
 import (

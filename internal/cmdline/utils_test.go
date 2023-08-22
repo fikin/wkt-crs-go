@@ -1,6 +1,7 @@
 package cmdline
 
 import (
+	// nolint:gosec
 	"crypto/md5"
 	"fmt"
 	"io"
