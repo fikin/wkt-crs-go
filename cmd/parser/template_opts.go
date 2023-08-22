@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
+	"github.com/creachadair/goflags/enumflag"
 	wktcrs "github.com/fikin/wkt-crs-go"
 )
 
@@ -20,6 +21,7 @@ type configTemplateOpt struct {
 	l             *log.Logger
 	packageName   string
 	templateFiles string
+	format        *enumflag.Value
 	inFile        *ioInputValue
 	outFile       *ioOutputValue
 }
@@ -29,12 +31,14 @@ func parseTemplateFlags(log *log.Logger, args []string) (*configTemplateOpt, fun
 		l:       log,
 		inFile:  newIoInputVar(),
 		outFile: newIoOutputVar(),
+		format:  enumflag.New("json", "index", "wgs84", "ast"),
 	}
 	fl := flag.NewFlagSet("template", flag.ContinueOnError)
 	fl.StringVar(&c.packageName, "package", "", "variable \"package\" passed to the template")
 	fl.Var(c.inFile, "in", "path to epsg.properties file or \"-\" for stdin")
 	fl.Var(c.outFile, "out", "path to output file or \"-\" for stdout")
 	fl.StringVar(&c.templateFiles, "template", "", "path and file (pattern) to go-lang template files i.e. dir/prefix\\*.tmpl")
+	fl.Var(c.format, "format", "convert input to json, index or wgs84 data and bind ir to \"repo\" template variable. \"ast\" option is antlr root node as-is.")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return nil, func() {}, err
@@ -59,13 +63,13 @@ func handleTemplate(cfg *configTemplateOpt) error {
 	}
 	is := antlr.NewIoStream(cfg.inFile.file)
 	parser := wktcrs.NewWktcrsv1Parser(is)
-	wgs84repo, err := wktcrs.Wgs84PropFile(parser.PropsFile())
+	repo, err := getTransformedAST(cfg.format.Key(), parser.PropsFile())
 	if err != nil {
 		return err
 	}
 	return tmpl.Execute(cfg.outFile.file, map[string]interface{}{
 		"packageName": cfg.packageName,
-		"repo":        wgs84repo,
+		"repo":        repo,
 		"inFileName":  cfg.inFile,
 	})
 }

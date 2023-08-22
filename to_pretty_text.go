@@ -33,7 +33,7 @@ func nodeToPrettyText2(node antlr.Tree, out io.StringWriter, nl newLineWriter, p
 		wktcrsv1.IVertdatumContext,
 		wktcrsv1.IPropRowContext:
 		nl(out, prefix)
-		return visitChildren(n, func(t antlr.Tree) error { return nodeToPrettyText2(t, out, nl, prefix+indent, indent) })
+		return VisitChildren(n, func(t antlr.Tree) error { return nodeToPrettyText2(t, out, nl, prefix+indent, indent) })
 	case antlr.ErrorNode:
 		return writeString(out, ">>%s<<", n.(antlr.ParseTree).GetText())
 	case antlr.TerminalNode:
@@ -46,6 +46,6 @@ func nodeToPrettyText2(node antlr.Tree, out io.StringWriter, nl newLineWriter, p
 			return writeString(out, n.(antlr.ParseTree).GetText())
 		}
 	default:
-		return visitChildren(n, func(t antlr.Tree) error { return nodeToPrettyText2(t, out, nl, prefix, indent) })
+		return VisitChildren(n, func(t antlr.Tree) error { return nodeToPrettyText2(t, out, nl, prefix, indent) })
 	}
 }

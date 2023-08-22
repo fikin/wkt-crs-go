@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/creachadair/goflags/enumflag"
 	wktcrs "github.com/fikin/wkt-crs-go"
+	"github.com/fikin/wkt-crs-go/wktcrsv1"
 )
 
 type configPropsOpt struct {
@@ -44,20 +46,8 @@ func handleProps(cfg *configPropsOpt) error {
 	is := antlr.NewIoStream(cfg.inFile.file)
 	parser := wktcrs.NewWktcrsv1Parser(is)
 	switch cfg.format.Key() {
-	case "json":
-		objs, err := wktcrs.PropsFileNodeToArr(parser.PropsFile())
-		if err != nil {
-			return err
-		}
-		return toPrettyJSON(cfg.outFile.file, objs)
-	case "index":
-		indx, err := wktcrs.AuthoritiesIndexPropFile(parser.PropsFile())
-		if err != nil {
-			return err
-		}
-		return toPrettyJSON(cfg.outFile.file, indx)
-	case "wgs84":
-		objs, err := wktcrs.Wgs84PropFile(parser.PropsFile())
+	case "json", "index", "wgs84":
+		objs, err := getTransformedAST(cfg.format.Key(), parser.PropsFile())
 		if err != nil {
 			return err
 		}
@@ -73,4 +63,17 @@ func toPrettyJSON(out io.Writer, data any) error {
 	e := json.NewEncoder(out)
 	e.SetIndent("", "  ")
 	return e.Encode(data)
+}
+
+func getTransformedAST(format string, node wktcrsv1.IPropsFileContext) (any, error) {
+	switch format {
+	case "json":
+		return wktcrs.PropsFileNodeToArr(node)
+	case "index":
+		return wktcrs.AuthoritiesIndexPropFile(node)
+	case "wgs84":
+		return wktcrs.Wgs84PropFile(node)
+	default:
+		return nil, fmt.Errorf("unsupported format options : %s", format)
+	}
 }

@@ -69,7 +69,7 @@ func wgs84Node(indx *Wgs84Repo, node antlr.Tree) error {
 		wktcrsv1.IAxisContext:
 		return fmt.Errorf("should not be here : %v", n)
 	default:
-		return visitChildren(n, func(t antlr.Tree) error {
+		return VisitChildren(n, func(t antlr.Tree) error {
 			return wgs84Node(indx, t)
 		})
 	}

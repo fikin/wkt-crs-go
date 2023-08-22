@@ -13,6 +13,7 @@ func TestTemplates(t *testing.T) {
 		"-template", "../../templates/wgs84*.tmpl",
 		"-in", "../../testdata/v1.properties",
 		"-out", "../../target/wgs84.txt",
+		"-format=wgs84",
 	})
 	require.NoError(t, err)
 	require.NoError(t, handleTemplate(cfg))

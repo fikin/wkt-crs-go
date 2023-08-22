@@ -11,7 +11,9 @@ import (
 
 type (
 	newLineWriter func(io.StringWriter, string)
-	visitorFn     func(antlr.Tree) error
+
+	// VisitorFn is simple abstraction of function visiting single antlr node
+	VisitorFn func(antlr.Tree) error
 )
 
 func writeString(out io.StringWriter, msg string, args ...interface{}) error {
@@ -32,7 +34,8 @@ func writeOnNewLine() newLineWriter {
 	}
 }
 
-func visitChildren(node antlr.Tree, visitor visitorFn) error {
+// VisitChildren is simply iterating over children and passing them to the visitor
+func VisitChildren(node antlr.Tree, visitor VisitorFn) error {
 	for _, c := range node.GetChildren() {
 		if err := visitor(c); err != nil {
 			return err
